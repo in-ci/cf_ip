@@ -1,36 +1,43 @@
-# This is a basic workflow to help you get started with Actions
+name: Update IP List
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  schedule:
+    - cron: '0 */6 * * *'  # 每6小时执行一次（UTC）
+  workflow_dispatch:       # 手动触发
+  push:                    # 代码提交触发
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  update-ip-list:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: 🧾 Checkout repository
+        uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: 🐍 Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: 📦 Install dependencies
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🚀 Run collect_ips.py
+        run: python collect_ips.py
+
+      - name: ✅ Commit and push if ip.txt changed
+        run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+
+          
+          # 检查是否有任何变更
+          if git diff --quiet; then
+            echo "No changes detected, skipping commit."
+          else
+            git add .
+            git commit -m "Automatic update by ${{ github.actor }}"
+            git push
+          fi
