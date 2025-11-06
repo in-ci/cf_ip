@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re
 
 # 默认过滤速度
-default_filter_speed = 5
+default_filter_speed = 3
 
 # 正则表达式用于匹配IP地址
 ip_pattern = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
