@@ -17,7 +17,7 @@ def str_to_num(s, default=0) -> int:
         return default
 
 
-def get_url(url, op, ulist):
+def get_url(url, op, ulist, listport):
     element_text = ""
 
     # 发送HTTP请求获取网页内容
@@ -45,20 +45,30 @@ def get_url(url, op, ulist):
         ip_matches = re.findall(ip_pattern, element_text)
         # 如果找到IP地址,则写入 list
         for ip in ip_matches:
-            ip = ip + "#" + ip + "_" + speed_matches[0]
-            ulist.append(ip)
+            uip = ip + "#" + ip + "_" + speed_matches[0]
+            ulist.append(uip)
+
+            ipport = ip + ":443#" + ip + "_" + speed_matches[0]
+            listport.append(ipport)
 
 
+# ip_port.txt
 if __name__ == "__main__":
     ip_list = []
+    ip_list_port = []
 
-    get_url("http://ip.164746.xyz", 1, ip_list)
+    get_url("http://ip.164746.xyz", 1, ip_list, ip_list_port)
 
     # ip 去重
     ip_list_unique = list(dict.fromkeys(ip_list))
+    ip_list_port_unique = list(dict.fromkeys(ip_list_port))
 
     if len(ip_list_unique):
         # 创建一个文件来存储IP地址
         with open("ip.txt", "w") as file:
-
             file.write("\n".join(ip_list_unique) + "\n")
+
+    if len(ip_list_port_unique):
+        # 创建一个文件来存储IP地址
+        with open("ip_port.txt", "w") as file:
+            file.write("\n".join(ip_list_port_unique) + "\n")
